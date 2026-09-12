@@ -1,4 +1,5 @@
 *.out
 .DS_Store
-Makefile
-__pycache__
+__pycache__/
+build/
+.cache/
