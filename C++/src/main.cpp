@@ -1,23 +1,20 @@
 #include "Board.hpp"
-#include "StandardCell.hpp"
 #include <chrono>
 #include <cstddef>
 #include <iostream>
-#include <memory>
 #include <thread>
 
 int main() {
-  Board<16, 16> board;
-  board[7][7] = std::make_unique<StandardCell>();
-  board[7][8] = std::make_unique<StandardCell>();
-  board[8][7] = std::make_unique<StandardCell>();
-  board[8][8] = std::make_unique<StandardCell>();
-  board[8][9] = std::make_unique<StandardCell>();
+  Board<39, 55> board;
+  board.randomize(0.5);
 
-  for (std::size_t i = 0; i < 10; i++) {
+  size_t gen = 0;
+  while (!board.isEmpty()) {
     std::cout << "\033[H\033[2J" << std::flush;
     std::cout << board;
-    std::cout << "generation: " << i << "\n";
+    std::cout << "generation: " << gen << "\n";
+
+    gen++;
     board.step();
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }

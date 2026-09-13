@@ -1,8 +1,10 @@
 #include <array>
 #include <cstddef>
+#include <initializer_list>
 #include <iostream>
 #include <memory>
 #include <ostream>
+#include <random>
 
 #include "Cell.hpp"
 #include "StandardCell.hpp"
@@ -15,6 +17,29 @@ public:
   const static size_t height = Height;
 
   constexpr Board() = default;
+
+  // Overload operator= for 2D initializer lists
+  Board &operator=(std::initializer_list<std::initializer_list<int>> grid) {
+    std::size_t row = 0;
+    for (const auto &rowList : grid) {
+      if (row >= height)
+        break;
+      std::size_t col = 0;
+      for (int cellState : rowList) {
+        if (col >= width)
+          break;
+
+        if (cellState != 0) {
+          cells_[row][col] = std::make_unique<StandardCell>();
+        } else {
+          cells_[row][col] = nullptr;
+        }
+        ++col;
+      }
+      ++row;
+    }
+    return *this;
+  }
 
   [[nodiscard]] bool operator==(const Board &other) const {
     if (other.height != height || other.width != width) {
@@ -84,6 +109,34 @@ public:
     os << "\u2518\n";
 
     return os;
+  }
+
+  void randomize(double fillProbability = 0.2) {
+    // Standard C++ Mersenne Twister engine seeded with random_device
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::bernoulli_distribution dist(fillProbability);
+
+    for (std::size_t row = 0; row < Height; ++row) {
+      for (std::size_t col = 0; col < Width; ++col) {
+        if (dist(gen)) {
+          cells_[row][col] = std::make_unique<StandardCell>();
+        } else {
+          cells_[row][col] = nullptr;
+        }
+      }
+    }
+  }
+
+  [[nodiscard]] bool isEmpty() const {
+    for (std::size_t row = 0; row < Height; ++row) {
+      for (std::size_t col = 0; col < Width; ++col) {
+        if (cells_[row][col]) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   [[nodiscard]] const Neighbourhood getNeighbours(std::size_t row,
