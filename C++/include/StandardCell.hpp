@@ -15,9 +15,12 @@ public:
           "\u2588";
   }
 
-  [[nodiscard]] bool
-  shouldSpawn(const Neighbourhood &neighbours) const override {
-    // std::cout << "StandardCell::shouldSpawn\n";
+  [[nodiscard]] bool equals(const Cell &other) const override {
+    return dynamic_cast<const StandardCell *>(&other) != nullptr;
+  }
+
+  [[nodiscard]] bool shouldSpawn(const Neighbourhood &neighbours)
+      const override { // std::cout << "StandardCell::shouldSpawn\n";
     return getNumLivingNeighbours(neighbours) == 3;
   }
 
@@ -32,9 +35,12 @@ private:
   [[nodiscard]] std::size_t
   getNumLivingNeighbours(const Neighbourhood &neighbours) const {
     std::size_t numLiving = 0;
-    for (std::size_t x = 0; x < 3; x++) {
-      for (std::size_t y = 0; y < 3; y++) {
-        numLiving += (neighbours[x][y] != nullptr);
+    for (std::size_t row = 0; row < 3; row++) {
+      for (std::size_t col = 0; col < 3; col++) {
+        if (row == 1 && col == 1) {
+          continue;
+        }
+        numLiving += (neighbours[row][col] != nullptr);
       }
     }
     return numLiving;

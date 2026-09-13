@@ -11,29 +11,61 @@ using Neighbourhood = std::array<std::array<const Cell *, 3>, 3>;
 
 template <std::size_t Width, std::size_t Height> class Board {
 public:
+  const static size_t width = Width;
+  const static size_t height = Height;
+
   constexpr Board() = default;
 
-  [[nodiscard]] constexpr const std::array<std::unique_ptr<Cell>, Height> &
+  [[nodiscard]] bool operator==(const Board &other) const {
+    if (other.height != height || other.width != width) {
+      std::cerr << "differing dimensions\n";
+      return false;
+    }
+
+    for (std::size_t row = 0; row < Height; row++) {
+      for (std::size_t col = 0; col < Width; col++) {
+        const auto &thisCell = cells_[row][col];
+        const auto &otherCell = other[row][col];
+
+        if (!thisCell && !otherCell) {
+          continue;
+        }
+
+        if (!thisCell || !otherCell) {
+          return false;
+        }
+
+        if (*thisCell != *otherCell) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  [[nodiscard]] constexpr const std::array<std::unique_ptr<Cell>, Width> &
   operator[](size_t row) const {
     return cells_[row];
   }
-  [[nodiscard]] constexpr std::array<std::unique_ptr<Cell>, Height> &
+  [[nodiscard]] constexpr std::array<std::unique_ptr<Cell>, Width> &
   operator[](std::size_t row) {
     return cells_[row];
   }
 
   friend std::ostream &operator<<(std::ostream &os, const Board &board) {
+    // start on a new line
+    os << "\n";
     // top line
     os << "\u250C";
-    for (std::size_t i = 0; i < 3 * Width; i++) {
+    for (std::size_t i = 0; i < 3 * width; i++) {
       os << "\u2500";
     }
     os << "\u2510\n";
 
     // board
-    for (std::size_t row = 0; row < Width; row++) {
+    for (std::size_t row = 0; row < height; row++) {
       os << "\u2502";
-      for (std::size_t col = 0; col < Height; col++) {
+      for (std::size_t col = 0; col < width; col++) {
         const auto &current = board[row][col];
         if (current) {
           os << *current;
@@ -46,7 +78,7 @@ public:
 
     // bottom line
     os << "\u2514";
-    for (std::size_t i = 0; i < 3 * Width; i++) {
+    for (std::size_t i = 0; i < 3 * width; i++) {
       os << "\u2500";
     }
     os << "\u2518\n";
@@ -59,17 +91,15 @@ public:
     // std::cout << "Board::getNeighbours\n";
     Neighbourhood neighbours;
 
-    for (int dx = -1; dx <= 1; dx++) {
-      for (int dy = -1; dy <= 1; dy++) {
-        if (dx == 0 && dy == 0) {
-          neighbours[1 + dy][1 + dx] = 0;
-          continue;
-        }
+    for (int dy = -1; dy <= 1; dy++) {
+      for (int dx = -1; dx <= 1; dx++) {
+        int neighbourRow = static_cast<int>(row) + dy;
+        int neighbourCol = static_cast<int>(col) + dx;
 
-        if (0 <= row + dy && row + dy < Height && 0 <= col + dx &&
-            col + dx < Width) {
+        if (0 <= neighbourRow && neighbourRow < static_cast<int>(height) &&
+            0 <= neighbourCol && neighbourCol < static_cast<int>(width)) {
 
-          neighbours[1 + dy][1 + dx] = cells_[row + dy][col + dx].get();
+          neighbours[1 + dy][1 + dx] = cells_[neighbourRow][neighbourCol].get();
         } else {
           neighbours[1 + dy][1 + dx] = nullptr;
         }
