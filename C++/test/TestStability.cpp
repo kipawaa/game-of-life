@@ -1,21 +1,50 @@
 #include "Board.hpp"
-#include "StandardCell.hpp"
 #include "gtest/gtest.h"
-#include <memory>
 
 TEST(StabilityTests, Square) {
-  Board<6, 6> stepBoard;
-  stepBoard[2][2] = std::make_unique<StandardCell>();
-  stepBoard[2][3] = std::make_unique<StandardCell>();
-  stepBoard[3][2] = std::make_unique<StandardCell>();
-  stepBoard[3][3] = std::make_unique<StandardCell>();
+  Board<2, 2> stepBoard;
+  stepBoard = {{1, 1}, {1, 1}};
 
   stepBoard.step();
 
-  Board<6, 6> board;
-  board[2][2] = std::make_unique<StandardCell>();
-  board[2][3] = std::make_unique<StandardCell>();
-  board[3][2] = std::make_unique<StandardCell>();
-  board[3][3] = std::make_unique<StandardCell>();
-  ASSERT_EQ(board, stepBoard);
+  Board<2, 2> expectedBoard;
+  expectedBoard = {{1, 1}, {1, 1}};
+
+  ASSERT_EQ(stepBoard, expectedBoard);
 };
+
+TEST(StabilityTests, HorizontalRing) {
+  Board<4, 3> stepBoard;
+  stepBoard = {{0, 1, 1, 0}, {1, 0, 0, 1}, {0, 1, 1, 0}};
+
+  stepBoard.step();
+
+  Board<4, 3> expectedBoard;
+  expectedBoard = {{0, 1, 1, 0}, {1, 0, 0, 1}, {0, 1, 1, 0}};
+
+  ASSERT_EQ(stepBoard, expectedBoard);
+}
+
+TEST(StabilityTests, VerticalRing) {
+  Board<3, 4> stepBoard;
+  stepBoard = {{0, 1, 0}, {1, 0, 1}, {1, 0, 1}, {0, 1, 0}};
+
+  stepBoard.step();
+
+  Board<3, 4> expectedBoard;
+  expectedBoard = {{0, 1, 0}, {1, 0, 1}, {1, 0, 1}, {0, 1, 0}};
+
+  ASSERT_EQ(stepBoard, expectedBoard);
+}
+
+TEST(StabilityTests, Circle) {
+  Board<4, 4> stepBoard;
+  stepBoard = {{0, 1, 1, 0}, {1, 0, 0, 1}, {1, 0, 0, 1}, {0, 1, 1, 0}};
+
+  stepBoard.step();
+
+  Board<4, 4> expectedBoard;
+  expectedBoard = {{0, 1, 1, 0}, {1, 0, 0, 1}, {1, 0, 0, 1}, {0, 1, 1, 0}};
+
+  ASSERT_EQ(stepBoard, expectedBoard);
+}

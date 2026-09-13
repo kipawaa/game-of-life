@@ -14,7 +14,8 @@ enable_testing()
 add_executable(gol_tests
   TestStability.cpp
   TestCell.cpp
-  TestUpdates.cpp
+  TestBoardStep.cpp
+  TestBoardInit.cpp
 )
 
 target_link_libraries(gol_tests
